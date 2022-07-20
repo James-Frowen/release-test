@@ -1,0 +1,77 @@
+name: Release
+
+on: 
+  push:
+    branches:
+     - main
+     - beta
+     - mirror
+  
+jobs:
+  Release:
+    env:
+      SOURCE_PATH: source
+      TARGET_PATH: Assets/release-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: '3.1.100'
+
+      - name: Install unity-packer
+        run: dotnet tool install -g unity-packer
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+          fetch-depth: 0
+    
+      - name: Release
+        # id so output can be used by other steps
+        id: semantic 
+        uses: cycjimmy/semantic-release-action@v3
+        with:          
+          extra_plugins: |
+            @semantic-release/exec
+            @semantic-release/changelog
+            @semantic-release/git
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # upload next version so that sonar can use it
+      - run: echo ${{ steps.semantic.outputs.new_release_version }}
+      - run: echo ${{ steps.semantic.outputs.new_release_version }} > SemanticVersion.txt
+      - name: Archive Version
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: SemanticVersion
+          path: SemanticVersion.txt
+  
+  UseVersion:
+    # needs: Release
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: get version
+        continue-on-error: true
+        uses: actions/download-artifact@v3
+        with:
+          name: SemanticVersion
+          path: SemanticVersion
+
+      # - run: ls -l
+      # - run: ls -l SemanticVersion
+      # - run: cat SemanticVersion/SemanticVersion.txt
+      # see https://stackoverflow.com/a/57969570/8479976
+      - run: echo "SEM_VERSION=$(cat SemanticVersion/SemanticVersion.txt)" >> $GITHUB_ENV
+        continue-on-error: true
+
+      - run: echo ${SEM_VERSION}
+      # - run: "[ -z \"${SEM_VERSION}\" ] && echo \"empty\""
+      - run: echo ${{ env.SEM_VERSION }}
+      - run: echo "${{ env.SEM_VERSION != '' && format('/v:{0}',env.SEM_VERSION) || '' }}"
+        
+

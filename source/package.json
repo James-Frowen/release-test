@@ -1,0 +1,17 @@
+{
+    "name": "com.james-frowen.release-test",
+    "displayName": "Test project",
+    "version": "1.0.11",
+    "unity": "2021.3",
+    "description": "",
+    "author": "James Frowen",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/James-Frowen/release-test"
+    },
+    "dependencies": {
+        "com.miragenet.mirage": "123.3.1",
+        "com.unity.profiling.core": "1.0.2"
+    },
+    "samples": []
+}
