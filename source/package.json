@@ -1,7 +1,7 @@
 {
     "name": "com.james-frowen.release-test",
     "displayName": "Test project",
-    "version": "1.0.11",
+    "version": "1.0.0-beta.1",
     "unity": "2021.3",
     "description": "",
     "author": "James Frowen",
